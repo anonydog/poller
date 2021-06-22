@@ -1,0 +1,15 @@
+---
+name: Poll for notifications
+on:
+  schedule:
+    - cron: "3/5 * * * *"
+
+jobs:
+  deployment:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Call poller endpoint
+      uses: fjogeleit/http-request-action@master
+      with:
+        url: ${{ format('https://{0}/api/do_poll', secrets.POLLER_DOMAIN) }}
+        method: 'GET'
