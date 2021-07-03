@@ -136,8 +136,18 @@ module Anonydog
 end
 
 Handler = Proc.new do |req, res|
-  res.status = 200
-  res['content-type'] = 'text/plain'
-  Anonydog::Poller.new.poll_for_pr_comments
-  res.body = 'ok'
+  if req.request_method == 'POST'
+    res['content-type'] = 'text/plain'
+    if req['authorization'] != "Bearer #{ENV['ANONYDOG_SECRET']}"
+      res.status = 403
+      res.body = 'Are you authorized?'
+    else
+      res.status = 200
+      Anonydog::Poller.new.poll_for_pr_comments
+      res.body = 'ok'
+    end
+  else
+    res.status = 405
+    res['Allow'] = 'POST'
+  end
 end
